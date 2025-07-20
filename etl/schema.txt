@@ -1,0 +1,27 @@
+Polymarket Schema (v1)
+
+EVENTS_TABLE
+====================
+event_id (key)
+title
+startDate
+endDate
+liquidity
+volume
+competitive
+commentCount
+tags
+lastUpdated
+
+MARKETS_TABLE
+====================
+event_id (foreign key)
+market_id
+question
+startDate
+endDate
+yesPrice
+noPrice
+volume
+liquidity
+lastUpdated
