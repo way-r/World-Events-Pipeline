@@ -1,6 +1,6 @@
 # World Events Pipeline
 
-An ETL pipeline that gather information on world events from betting markets<br>
+An ETL pipeline that gathers information on world events from betting markets<br>
 
 ## Current Modules
 - Polymarket

@@ -1,3 +1,6 @@
+from dateutil import parser
+from datetime import datetime, timezone
+
 class Transformer:
     '''
     To transform data from sources into a format that can be injested into database
@@ -9,7 +12,8 @@ class Polymarket_transformer(Transformer):
     Transform a json from Polymarket api
     '''
 
-    def get_market_table(data):
+    @staticmethod
+    def get_events_table(data):
         '''
         Create a table that has information about all events
 
@@ -33,9 +37,71 @@ class Polymarket_transformer(Transformer):
                 },
             ]
         '''
-        pass
+        res = []
+        timestamp = datetime.now(timezone.utc).isoformat(timespec='microseconds').replace('+00:00', 'Z')
 
-    def get_event_table(data):
+        for event in data:
+            event_details = dict()
+
+            try:
+                event_details["event_id"] = (event.get("id"))
+                event_details["title"] = event.get("title")
+
+                try:
+                    startDate = parser.parse(event.get("startDate"))
+                    startDate = startDate.replace(tzinfo = timezone.utc)
+                    event_details["startDate"] = startDate
+                except (TypeError, ValueError):
+                    event_details["startDate"] = None
+
+                try:
+                    endDate = parser.parse(event.get("endDate"))
+                    endDate = endDate.replace(tzinfo = timezone.utc)
+                    event_details["endDate"] = endDate
+                except (TypeError, ValueError):
+                    event_details["endDate"] = None
+
+                try:
+                    event_details["liquidity"] = float(event.get("liquidity"))
+                except (TypeError, ValueError):
+                    event_details["liquidity"] = None
+
+                try:
+                    event_details["volume"] = float(event.get("volume"))
+                except (TypeError, ValueError):
+                    event_details["volume"] = None
+
+                try:
+                    event_details["competitive"] = float(event.get("competitive"))
+                except (TypeError, ValueError):
+                    event_details["competitive"] = None
+                
+                try:
+                    event_details["commentCount"] = float(event.get("commentCount"))
+                except (TypeError, ValueError):
+                    event_details["commentCount"] = None
+
+                try:
+                    tags = []
+                    for tag_content in event.get("tags"):
+                        tags.append(tag_content.get("label"))
+                    event_details["tags"] = tags
+                except (TypeError, ValueError):
+                    event_details["tags"] = None
+
+                event_details["last_updated"] = timestamp
+
+                res.append(event_details)
+
+            except Exception as e:
+                # add logging
+                continue
+
+        return res
+
+
+    @staticmethod
+    def get_markets_table(data):
         '''
         Create a table that has information about all markets
 
