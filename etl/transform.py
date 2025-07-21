@@ -1,5 +1,6 @@
 from dateutil import parser
 from datetime import datetime, timezone
+import json
 
 class Transformer:
     '''
@@ -38,7 +39,7 @@ class Polymarket_transformer(Transformer):
             ]
         '''
         res = []
-        timestamp = datetime.now(timezone.utc).isoformat(timespec='microseconds').replace('+00:00', 'Z')
+        timestamp = datetime.now(timezone.utc).isoformat(timespec = 'microseconds').replace('+00:00', 'Z')
 
         for event in data:
             event_details = dict()
@@ -77,7 +78,7 @@ class Polymarket_transformer(Transformer):
                     event_details["competitive"] = None
                 
                 try:
-                    event_details["commentCount"] = float(event.get("commentCount"))
+                    event_details["commentCount"] = int(event.get("commentCount"))
                 except (TypeError, ValueError):
                     event_details["commentCount"] = None
 
@@ -125,4 +126,64 @@ class Polymarket_transformer(Transformer):
                 },
             ]
         '''
-        pass
+        res = []
+        timestamp = datetime.now(timezone.utc).isoformat(timespec='microseconds').replace('+00:00', 'Z')
+
+        for event in data:
+            event_id = event.get("id")
+
+            for market in event["markets"]:
+                market_details = dict()
+
+                try:
+                    market_details["event_id"] = event_id
+                    market_details["market_id"] = market.get("id")
+                    market_details["question"] = market.get("question")
+                    
+                    try:
+                        startDate = parser.parse(market.get("startDate"))
+                        startDate = startDate.replace(tzinfo = timezone.utc)
+                        market_details["startDate"] = startDate
+                    except (TypeError, ValueError):
+                        market_details["startDate"] = None
+
+                    try:
+                        endDate = parser.parse(market.get("endDate"))
+                        endDate = endDate.replace(tzinfo = timezone.utc)
+                        market_details["endDate"] = endDate
+                    except (TypeError, ValueError):
+                        market_details["endDate"] = None
+
+                    try:
+                        prices = json.loads(market.get("outcomePrices"))
+                        market_details["yesPrice"] = float(prices[0])
+                        market_details["noPrice"] = float(prices[1])
+
+                    except (json.JSONDecodeError, TypeError, ValueError):
+                        market_details["yesPrice"] = None
+                        market_details["noPrice"] = None
+
+                    try:
+                        market_details["competitive"] = float(market.get("competitive"))
+                    except (TypeError, ValueError):
+                        market_details["competitive"] = None
+
+                    try:
+                        market_details["volume"] = float(market.get("volume"))
+                    except (TypeError, ValueError):
+                        market_details["volume"] = None
+
+                    try:
+                        market_details["liquidity"] = float(market.get("liquidity"))
+                    except (TypeError, ValueError):
+                        market_details["liquidity"] = None
+
+                    market_details["last_updated"] = timestamp
+
+                    res.append(market_details)
+
+                except Exception as e:
+                    # add logging
+                    continue
+
+        return res
