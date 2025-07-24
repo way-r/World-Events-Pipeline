@@ -1,6 +1,6 @@
 from dateutil import parser
 from datetime import datetime, timezone
-import json
+import json, logging
 
 class Transformer:
     '''
@@ -39,13 +39,13 @@ class Polymarket_transformer(Transformer):
             ]
         '''
         res = []
-        timestamp = datetime.now(timezone.utc).isoformat(timespec = 'microseconds').replace('+00:00', 'Z')
+        timestamp = datetime.now(timezone.utc).isoformat(timespec = "microseconds").replace("+00:00", "Z")
 
         for event in data:
             event_details = dict()
 
             try:
-                event_details["event_id"] = (event.get("id"))
+                event_details["event_id"] = str(event.get("id"))
                 event_details["title"] = event.get("title")
 
                 try:
@@ -95,7 +95,7 @@ class Polymarket_transformer(Transformer):
                 res.append(event_details)
 
             except Exception as e:
-                # add logging
+                logging.warning(f"Error while getting details for event {event_details["event_id"]}: {e}")
                 continue
 
         return res
@@ -127,17 +127,17 @@ class Polymarket_transformer(Transformer):
             ]
         '''
         res = []
-        timestamp = datetime.now(timezone.utc).isoformat(timespec='microseconds').replace('+00:00', 'Z')
+        timestamp = datetime.now(timezone.utc).isoformat(timespec = "microseconds").replace("+00:00", "Z")
 
         for event in data:
-            event_id = event.get("id")
+            event_id = str(event.get("id"))
 
             for market in event["markets"]:
                 market_details = dict()
 
                 try:
                     market_details["event_id"] = event_id
-                    market_details["market_id"] = market.get("id")
+                    market_details["market_id"] = str(market.get("id"))
                     market_details["question"] = market.get("question")
                     
                     try:
@@ -183,7 +183,7 @@ class Polymarket_transformer(Transformer):
                     res.append(market_details)
 
                 except Exception as e:
-                    # add logging
+                    logging.warning(f"Error while getting details for market {market_details["market_id"]}: {e}")
                     continue
 
         return res
