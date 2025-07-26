@@ -90,7 +90,7 @@ class Polymarket_transformer(Transformer):
                 except (TypeError, ValueError):
                     event_details["tags"] = None
 
-                event_details["last_updated"] = timestamp
+                event_details["lastUpdated"] = timestamp
 
                 res.append(event_details)
 
@@ -178,7 +178,7 @@ class Polymarket_transformer(Transformer):
                     except (TypeError, ValueError):
                         market_details["liquidity"] = None
 
-                    market_details["last_updated"] = timestamp
+                    market_details["lastUpdated"] = timestamp
 
                     res.append(market_details)
 
