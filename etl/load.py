@@ -22,20 +22,16 @@ class Loader:
         Returns
         None
         '''
-        try:
-            self.conn = psycopg2.connect(
-                host = host,
-                user = user,
-                password = password,
-                port = port,
-                dbname = dbname
-            )
-            self.conn.autocommit = True
-            self.cur = self.conn.cursor()
-            self.database = dbname
-
-        except psycopg2.OperationalError as e:
-            logging.error(f"Error while connecting to the database: {e}")
+        self.database = dbname
+        self.conn = psycopg2.connect(
+            host = host,
+            user = user,
+            password = password,
+            port = port,
+            dbname = self.database
+        )
+        self.conn.autocommit = True
+        self.cur = self.conn.cursor()
 
 
     def close(self):
@@ -45,12 +41,8 @@ class Loader:
         Returns
         None
         '''
-        try:
-            self.conn.close()
-            self.cur.close()
-        
-        except psycopg2.InterfaceError as e:
-            logging.error(f"Error while disconnecting from the database: {e}")
+        self.conn.close()
+        self.cur.close()
     
     
     def create_database(self, database_name):
@@ -68,9 +60,6 @@ class Loader:
         
         except psycopg2.errors.DuplicateDatabase as e:
             logging.warning(f"{e}")
-
-        except psycopg2.ProgrammingError as e:
-            logging.error(f"Error while creating database: {e}")
               
 
     def create_table(self, table_name, format):
@@ -89,13 +78,9 @@ class Loader:
             create_table = sql.SQL("CREATE TABLE {} ({})").format(sql.Identifier(table_name),sql.SQL(", ").join(columns))
 
             self.cur.execute(create_table)
-            logging.info(f"Successfully created table {table_name} in database {self.database}")
 
         except psycopg2.errors.DuplicateTable as e:
-            logging.warning(f"Attempted to create table {table_name} but it already exists in database {self.database}")
-        
-        except psycopg2.ProgrammingError as e:
-            logging.error(f"Error while creating table: {e}")
+            logging.warning(f"Attempted to create table '{table_name}' but it already exists in database '{self.database}'")
 
 
     def update_table(self, table_name, data, primary_key = None):
@@ -114,22 +99,18 @@ class Loader:
         col = [sql.Identifier(k) for k in keys]
         values = [[row[k] for k in keys] for row in data]
 
-        try:
-            insert = sql.SQL("INSERT INTO {} ({}) VALUES %s").format(
-                sql.Identifier(table_name),
-                sql.SQL(', ').join(col)
-            )
-            
-            if primary_key:
-                update = [
-                    sql.SQL("{} = EXCLUDED.{}").format(sql.Identifier(k), sql.Identifier(k)) for k in keys if k != primary_key
-                ]
-                query = insert + sql.SQL(" ON CONFLICT ({}) DO UPDATE SET ").format(sql.Identifier(primary_key)) + sql.SQL(', ').join(update)
-            
-            else:
-                query = insert
+        insert = sql.SQL("INSERT INTO {} ({}) VALUES %s").format(
+            sql.Identifier(table_name),
+            sql.SQL(', ').join(col)
+        )
+        
+        if primary_key:
+            update = [
+                sql.SQL("{} = EXCLUDED.{}").format(sql.Identifier(k), sql.Identifier(k)) for k in keys if k != primary_key
+            ]
+            query = insert + sql.SQL(" ON CONFLICT ({}) DO UPDATE SET ").format(sql.Identifier(primary_key)) + sql.SQL(', ').join(update)
+        
+        else:
+            query = insert
 
-            execute_values(self.cur, query, values)
-
-        except psycopg2.ProgrammingError as e:
-            logging.error(f"Error while creating table {table_name}: {e}")
+        execute_values(self.cur, query, values)
