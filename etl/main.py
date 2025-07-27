@@ -7,10 +7,10 @@ import os, logging
 
 
 load_dotenv()
-host = os.getenv("LOCAL_DB_host")
-user = os.getenv("LOCAL_DB_USER")
-password = os.getenv("LOCAL_DB_PASSWORD")
-port = os.getenv("LOCAL_DB_PORT")
+host = os.getenv("DB_HOST")
+user = os.getenv("DB_USER")
+password = os.getenv("DB_PASSWORD")
+port = os.getenv("DB_PORT")
 
 etl_log_path = os.path.join("logs", "etl.txt")
 logging.basicConfig(

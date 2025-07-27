@@ -28,7 +28,8 @@ class Loader:
             user = user,
             password = password,
             port = port,
-            dbname = self.database
+            dbname = self.database,
+            sslmode = "require"
         )
         self.conn.autocommit = True
         self.cur = self.conn.cursor()
