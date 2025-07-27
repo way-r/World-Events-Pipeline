@@ -3,7 +3,7 @@ from utils.config import POLYMARKET_URL
 from etl.extract import Extractor
 from etl.transform import Polymarket_transformer
 from etl.load import Loader
-import os, logging
+import os, logging, argparse
 
 
 load_dotenv()
@@ -108,3 +108,15 @@ def set_up():
 
     except Exception as e:
         logging.error(f"Error while trying to create tables for database 'Polymarket' : {e}")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("action", choices=["setup", "update"])
+    args = parser.parse_args()
+
+    if args.action == "setup":
+        set_up()
+
+    if args.action == "update":
+        update()
