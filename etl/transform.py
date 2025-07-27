@@ -1,6 +1,6 @@
 from dateutil import parser
 from datetime import datetime, timezone
-import json, logging
+import json
 
 class Transformer:
     '''
@@ -95,7 +95,7 @@ class Polymarket_transformer(Transformer):
                 res.append(event_details)
 
             except Exception as e:
-                logging.warning(f"Error while getting details for event {event_details["event_id"]}: {e}")
+                print(f"Error while getting details for event {event_details["event_id"]}: {e}")
                 continue
 
         return res
@@ -183,7 +183,7 @@ class Polymarket_transformer(Transformer):
                     res.append(market_details)
 
                 except Exception as e:
-                    logging.warning(f"Error while getting details for market {market_details["market_id"]}: {e}")
+                    print(f"Error while getting details for market {market_details["market_id"]}: {e}")
                     continue
 
         return res

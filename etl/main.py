@@ -3,7 +3,7 @@ from utils.config import POLYMARKET_URL
 from etl.extract import Extractor
 from etl.transform import Polymarket_transformer
 from etl.load import Loader
-import os, logging, argparse
+import os, argparse
 
 
 load_dotenv()
@@ -11,47 +11,6 @@ host = os.getenv("DB_HOST")
 user = os.getenv("DB_USER")
 password = os.getenv("DB_PASSWORD")
 port = os.getenv("DB_PORT")
-
-etl_log_path = os.path.join("logs", "etl.txt")
-logging.basicConfig(
-    filename = etl_log_path,
-    level = logging.INFO,
-    format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    datefmt = "%Y-%m-%d %H:%M:%S"
-)
-
-
-def update():
-    '''
-    Get data from sources and update the database
-
-    Returns
-    None
-    '''
-    with open(etl_log_path, "a"):
-        pass
-
-    try:
-        polymarket_data = Extractor.get_json_from_api(POLYMARKET_URL)
-        events_data = Polymarket_transformer.get_events_table(polymarket_data)
-        markets_data = Polymarket_transformer.get_markets_table(polymarket_data)
-
-    except Exception as e:
-        logging.error(f"Error while trying to get data from Polymarket gammaAPI: {e}")
-
-    try:
-        polymarket_loader = Loader(host, user, password, port, dbname = "Polymarket")
-        
-        polymarket_loader.update_table("events", events_data, "event_id")
-        logging.info("Successfully updated table 'events' in database 'Polymarket'")
-
-        polymarket_loader.update_table("markets", markets_data)
-        logging.info("Successfully updated table 'markets' in database 'Polymarket'")
-
-        polymarket_loader.close()
-    
-    except Exception as e:
-        logging.error(f"Error while trying to write data to database 'Polymarket': {e}")
 
 
 def set_up():
@@ -64,11 +23,11 @@ def set_up():
     try:
         Polymarket_db_setup = Loader(host, user, password, port)
         Polymarket_db_setup.create_database("Polymarket")
-        logging.info("Successfully created database 'Polymarket'")
+        print("Successfully created database 'Polymarket'")
         Polymarket_db_setup.close()
 
     except Exception as e:
-        logging.error(f"Error while trying to create database 'Polymarket' : {e}")
+        print(f"Error while trying to create database 'Polymarket' : {e}")
 
     try:
         Polymarket_table_setup = Loader(host, user, password, port, dbname = "Polymarket")
@@ -86,7 +45,7 @@ def set_up():
             "lastUpdated" : "TIMESTAMP"
         }
         Polymarket_table_setup.create_table("events", events_format)
-        logging.info("Successfully created table 'events' in database 'Polymarket'")
+        print("Successfully created table 'events' in database 'Polymarket'")
 
         markets_format = {
             "event_id" : "VARCHAR(20)",
@@ -102,12 +61,42 @@ def set_up():
             "lastUpdated" : "TIMESTAMP"
         }
         Polymarket_table_setup.create_table("markets", markets_format)
-        logging.info("Successfully created table 'markets' in database 'Polymarket'")
+        print("Successfully created table 'markets' in database 'Polymarket'")
 
         Polymarket_table_setup.close()
 
     except Exception as e:
-        logging.error(f"Error while trying to create tables for database 'Polymarket' : {e}")
+        print(f"Error while trying to create tables for database 'Polymarket' : {e}")
+
+
+def update():
+    '''
+    Get data from sources and update the database
+
+    Returns
+    None
+    '''
+    try:
+        polymarket_data = Extractor.get_json_from_api(POLYMARKET_URL)
+        events_data = Polymarket_transformer.get_events_table(polymarket_data)
+        markets_data = Polymarket_transformer.get_markets_table(polymarket_data)
+
+    except Exception as e:
+        print(f"Error while trying to get data from Polymarket gammaAPI: {e}")
+
+    try:
+        polymarket_loader = Loader(host, user, password, port, dbname = "Polymarket")
+        
+        polymarket_loader.update_table("events", events_data, "event_id")
+        print("Successfully updated table 'events' in database 'Polymarket'")
+
+        polymarket_loader.update_table("markets", markets_data)
+        print("Successfully updated table 'markets' in database 'Polymarket'")
+
+        polymarket_loader.close()
+    
+    except Exception as e:
+        print(f"Error while trying to write data to database 'Polymarket': {e}")
 
 
 if __name__ == "__main__":

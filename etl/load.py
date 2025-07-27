@@ -1,6 +1,6 @@
 from psycopg2 import sql
 from psycopg2.extras import execute_values
-import psycopg2, logging
+import psycopg2
 
 
 class Loader:
@@ -60,7 +60,7 @@ class Loader:
              self.cur.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(database_name)))
         
         except psycopg2.errors.DuplicateDatabase as e:
-            logging.warning(f"{e}")
+            print(f"{e}")
               
 
     def create_table(self, table_name, format):
@@ -81,7 +81,7 @@ class Loader:
             self.cur.execute(create_table)
 
         except psycopg2.errors.DuplicateTable as e:
-            logging.warning(f"Attempted to create table '{table_name}' but it already exists in database '{self.database}'")
+            print(f"Attempted to create table '{table_name}' but it already exists in database '{self.database}'")
 
 
     def update_table(self, table_name, data, primary_key = None):
