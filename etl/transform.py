@@ -27,14 +27,14 @@ class Polymarket_transformer(Transformer):
                 {
                     "event_id" : id,
                     "title" : title,
-                    "startDate" : startDate,
-                    "endDate" : endDate,
+                    "start_date" : startDate,
+                    "end_date" : endDate,
                     "liquidity" : liquidity,
                     "volume" : volume,
                     "competitive" : competitive,
-                    "commentCount" : comment_count,
+                    "comment_count" : comment_count,
                     "tags" : [tags,],
-                    "lastUpdated" : timestamp
+                    "last_updated" : timestamp
                 },
             ]
         '''
@@ -51,16 +51,16 @@ class Polymarket_transformer(Transformer):
                 try:
                     startDate = parser.parse(event.get("startDate"))
                     startDate = startDate.replace(tzinfo = timezone.utc)
-                    event_details["startDate"] = startDate
+                    event_details["start_date"] = startDate
                 except (TypeError, ValueError):
-                    event_details["startDate"] = None
+                    event_details["start_date"] = None
 
                 try:
                     endDate = parser.parse(event.get("endDate"))
                     endDate = endDate.replace(tzinfo = timezone.utc)
-                    event_details["endDate"] = endDate
+                    event_details["end_date"] = endDate
                 except (TypeError, ValueError):
-                    event_details["endDate"] = None
+                    event_details["end_date"] = None
 
                 try:
                     event_details["liquidity"] = float(event.get("liquidity"))
@@ -78,9 +78,9 @@ class Polymarket_transformer(Transformer):
                     event_details["competitive"] = None
                 
                 try:
-                    event_details["commentCount"] = int(event.get("commentCount"))
+                    event_details["comment_count"] = int(event.get("commentCount"))
                 except (TypeError, ValueError):
-                    event_details["commentCount"] = None
+                    event_details["comment_count"] = None
 
                 try:
                     tags = []
@@ -90,7 +90,7 @@ class Polymarket_transformer(Transformer):
                 except (TypeError, ValueError):
                     event_details["tags"] = None
 
-                event_details["lastUpdated"] = timestamp
+                event_details["last_updated"] = timestamp
 
                 res.append(event_details)
 
@@ -116,13 +116,13 @@ class Polymarket_transformer(Transformer):
                     "event_id" : event_id,
                     "market_id" : id,
                     "question" : question,
-                    "startDate" : startDate,
-                    "endDate" : endDate,
-                    "yesPrice" : yesPrice,
-                    "noPrice" : noPrice,
+                    "start_date" : startDate,
+                    "end_date" : endDate,
+                    "yes_price" : yesPrice,
+                    "no_price" : noPrice,
                     "volume" : volume,
                     "liquidity" : liquidity,
-                    "lastUpdated" : timestamp
+                    "last_updated" : timestamp
                 },
             ]
         '''
@@ -143,25 +143,25 @@ class Polymarket_transformer(Transformer):
                     try:
                         startDate = parser.parse(market.get("startDate"))
                         startDate = startDate.replace(tzinfo = timezone.utc)
-                        market_details["startDate"] = startDate
+                        market_details["start_date"] = startDate
                     except (TypeError, ValueError):
-                        market_details["startDate"] = None
+                        market_details["start_date"] = None
 
                     try:
                         endDate = parser.parse(market.get("endDate"))
                         endDate = endDate.replace(tzinfo = timezone.utc)
-                        market_details["endDate"] = endDate
+                        market_details["end_date"] = endDate
                     except (TypeError, ValueError):
-                        market_details["endDate"] = None
+                        market_details["end_date"] = None
 
                     try:
                         prices = json.loads(market.get("outcomePrices"))
-                        market_details["yesPrice"] = float(prices[0])
-                        market_details["noPrice"] = float(prices[1])
+                        market_details["yes_price"] = float(prices[0])
+                        market_details["no_price"] = float(prices[1])
 
                     except (json.JSONDecodeError, TypeError, ValueError):
-                        market_details["yesPrice"] = None
-                        market_details["noPrice"] = None
+                        market_details["yes_price"] = None
+                        market_details["no_price"] = None
 
                     try:
                         market_details["competitive"] = float(market.get("competitive"))
@@ -178,7 +178,7 @@ class Polymarket_transformer(Transformer):
                     except (TypeError, ValueError):
                         market_details["liquidity"] = None
 
-                    market_details["lastUpdated"] = timestamp
+                    market_details["last_updated"] = timestamp
 
                     res.append(market_details)
 
