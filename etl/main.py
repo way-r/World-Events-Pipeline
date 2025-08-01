@@ -13,7 +13,7 @@ password = os.getenv("DB_PASSWORD")
 port = os.getenv("DB_PORT")
 
 
-def set_up():
+def setup():
     '''
     Set up by creating all the required databases and tables
 
@@ -35,14 +35,14 @@ def set_up():
         events_format = {
             "event_id" : "VARCHAR(20) PRIMARY KEY",
             "title" : "TEXT",
-            "startDate" : "TIMESTAMP",
-            "endDate" : "TIMESTAMP",
+            "start_date" : "TIMESTAMP",
+            "end_date" : "TIMESTAMP",
             "liquidity" : "NUMERIC(20, 4)",
             "volume" : "NUMERIC(20, 4)",
             "competitive" : "DOUBLE PRECISION",
-            "commentCount" : "INTEGER",
+            "comment_count" : "INTEGER",
             "tags" : "TEXT[]",
-            "lastUpdated" : "TIMESTAMP"
+            "last_updated" : "TIMESTAMP"
         }
         Polymarket_table_setup.create_table("events", events_format)
         print("Successfully created table 'events' in database 'Polymarket'")
@@ -51,14 +51,14 @@ def set_up():
             "event_id" : "VARCHAR(20)",
             "market_id" : "VARCHAR(20)",
             "question" : "TEXT",
-            "startDate" : "TIMESTAMP",
-            "endDate" : "TIMESTAMP",
-            "yesPrice" : "NUMERIC(20, 4)",
-            "noPrice" : "NUMERIC(20, 4)",
+            "start_date" : "TIMESTAMP",
+            "end_date" : "TIMESTAMP",
+            "yes_price" : "NUMERIC(20, 4)",
+            "no_price" : "NUMERIC(20, 4)",
             "competitive" : "DOUBLE PRECISION",
             "volume" : "NUMERIC(20, 4)",
             "liquidity" : "NUMERIC(20, 4)",
-            "lastUpdated" : "TIMESTAMP"
+            "last_updated" : "TIMESTAMP"
         }
         Polymarket_table_setup.create_table("markets", markets_format)
         print("Successfully created table 'markets' in database 'Polymarket'")
@@ -66,6 +66,7 @@ def set_up():
         Polymarket_table_setup.close()
 
     except Exception as e:
+        Polymarket_table_setup.close()
         print(f"Error while trying to create tables for database 'Polymarket' : {e}")
 
 
@@ -96,6 +97,7 @@ def update():
         polymarket_loader.close()
     
     except Exception as e:
+        polymarket_loader.close()
         print(f"Error while trying to write data to database 'Polymarket': {e}")
 
 
@@ -105,7 +107,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.action == "setup":
-        set_up()
+        setup()
 
     if args.action == "update":
         update()

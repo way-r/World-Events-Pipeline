@@ -4,25 +4,25 @@ EVENTS_TABLE
 ====================
 event_id (key)
 title
-startDate
-endDate
+start_date
+end_date
 liquidity
 volume
 competitive
-commentCount
+comment_count
 tags
-lastUpdated
+last_updated
 
 MARKETS_TABLE
 ====================
 event_id (foreign key)
 market_id
 question
-startDate
-endDate
-yesPrice
-noPrice
+start_date
+end_date
+yes_price
+no_price
 competitive
 volume
 liquidity
-lastUpdated
+last_updated
